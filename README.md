@@ -29,7 +29,7 @@ Analyst Mode: Acts as a "Tactical Stream Deck." Pressing keys on the physical ke
 Clone this repository:<br>
 ```bash
 git clone https://github.com/PS-003R32/C9-Tactical.git
-cd C9-Tactical-Command/server
+cd C9-Tactical/
 ```
 Install Dependencies:<br>
 ```bash
