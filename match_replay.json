@@ -1,0 +1,11 @@
+[
+  {"delay": 1, "type": "event", "action": "series-start", "msg": "CONNECTED TO GRID SECURE FEED..."},
+  {"delay": 2, "type": "state", "map": "Ascent", "score_c9": 12, "score_opp": 11},
+  {"delay": 2, "type": "event", "action": "intel", "msg": "INTEL: Enemy Jett detected Mid-Market"},
+  {"delay": 4, "type": "event", "action": "killed", "actor": "Blaber", "target": "Derke", "role": "Jungle"},
+  {"delay": 3, "type": "event", "action": "bomb-planted", "msg": "ALERT: SPIKE PLANTED AT SITE A"},
+  {"delay": 5, "type": "event", "action": "killed", "actor": "Fudge", "target": "Boaster", "role": "Top"},
+  {"delay": 2, "type": "event", "action": "killed", "actor": "Berserker", "target": "Chronicle", "role": "Bot"},
+  {"delay": 4, "type": "event", "action": "defuse-start", "msg": "C9 Vulcan is defusing..."},
+  {"delay": 5, "type": "event", "action": "round-win", "msg": "ROUND SECURED. CLOUD9 WINS."}
+]
