@@ -95,7 +95,7 @@ B. View Switchers (The "Screen" Buttons)<br>
 These buttons change the entire layout of the web dashboard, acting like tabs in a browser but controlled physically.<br>
 
 `STATS (Key 'A')`:<br>
-**Payload**: {"type": "view", "target": "statistics"}.<br>
+**Payload**: `{"type": "view", "target": "statistics"}`.<br>
 **Result**: Hides the "Roster Intel" panel and reveals the "Advanced Analytics" panel (graphs/charts).<br>
 
 `BANS (Key 'B')`:<br>
