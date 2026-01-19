@@ -61,11 +61,12 @@ Keypad Cols: GP5, GP4, GP3, GP2.
 ## Usage Manual
 
 1. The Physical-to-Logical Mapping.
+
 |  Physical Key  |   Logical Function   |       Category      |
 |----------------|----------------------|---------------------|
 |        1       |         TOP          |      Lane Filter    |
-|        2       |         JGL          |      Lane Filter    | 
-|        3       |         MID          |      Lane Filter    | 
+|        2       |         JGL          |      Lane Filter    |
+|        3       |         MID          |      Lane Filter    |
 |        A       |         STATS        |     View Switcher   |
 |        4       |         BOT          |     Lane Filter     |
 |        5       |         SUP          |     Lane Filter     |
