@@ -81,7 +81,8 @@ Keypad Cols: GP5, GP4, GP3, GP2.
 |        #       |         #            |     Game Input      |
 |        D       |         HOME         |     System Reset    |
 
-2. Detailed Function Explanation
+2. Detailed Function Explanation<br>
+
 A. Lane Filters (The "Focus" Buttons)<br>
 These buttons allow an analyst to instantly cut through the noise on the dashboard.<br>
 **Keys**: `TOP`, `JGL`, `MID`, `BOT`, `SUP`.<br>
