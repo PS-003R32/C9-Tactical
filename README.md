@@ -28,7 +28,7 @@ Analyst Mode: Acts as a "Tactical Stream Deck." Pressing keys on the physical ke
 * Part 1: The C2 Server (_Raspberry Pi Zero W_)<br>
 Clone this repository:<br>
 ```bash
-git clone https://github.com/YOUR_USERNAME/C9-Tactical-Command.git
+git clone https://github.com/PS-003R32/C9-Tactical.git
 cd C9-Tactical-Command/server
 ```
 Install Dependencies:<br>
