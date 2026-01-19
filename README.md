@@ -153,7 +153,7 @@ _The keypad isn't just a number pad. It is a context-aware controller. During a 
 <img width="987" height="576" alt="image" src="https://github.com/user-attachments/assets/3d1acc96-befb-4323-8db0-8cbb2c4bbe3b" /><br>
 
 * Web Interface:<br>
-<img width="1856" height="1076" alt="image" src="https://github.com/user-attachments/assets/8e14cb1c-5865-4fea-92f6-57a7058724c3" />
+<img width="1917" height="1154" alt="image" src="https://github.com/user-attachments/assets/6b271f29-d2e5-4305-8a8d-bd840c7c896a" /><br>
 
 * The physical edge device:<br>
 <img width="2560" height="1928" alt="image" src="https://github.com/user-attachments/assets/7b7d68c3-7b88-4593-b4af-0d96276f447b" />
