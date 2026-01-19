@@ -5,7 +5,7 @@ A unified tactical ecosystem that bridges the gap between digital esports data a
 ## How It Works
 The ecosystem consists of two synchronized nodes:
 
-* The C2 Server (Raspberry Pi Zero W):<br>
+* The C9 Server (Raspberry Pi Zero W):<br>
 Connects to the GRID Series Events WebSocket to ingest live VALORANT/LoL match data.<br>
 Runs a Flask Web Server that hosts the Tactical Dashboard.<br>
 Processes "Red Team" algorithms to flag high-threat opponents based on live K/D variance.<br>
@@ -25,7 +25,7 @@ Analyst Mode: Acts as a "Tactical Stream Deck." Pressing keys on the physical ke
 ---
 ## Installation
 
-* Part 1: The C2 Server (_Raspberry Pi Zero W_)<br>
+* Part 1: The C9 Server (_Raspberry Pi Zero W_)<br>
 Clone this repository:<br>
 ```bash
 git clone https://github.com/PS-003R32/C9-Tactical.git
