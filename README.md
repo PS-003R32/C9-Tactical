@@ -76,5 +76,17 @@ Keypad Cols: GP5, GP4, GP3, GP2.
 - Win: Dashboard status turns CYAN (DEFUSED).
 
 ---
+# Snapshots
+* The application server `app.py`:<br>
+<img width="987" height="576" alt="image" src="https://github.com/user-attachments/assets/3d1acc96-befb-4323-8db0-8cbb2c4bbe3b" /><br>
+
+* Web Interface:<br>
+<img width="1856" height="1076" alt="image" src="https://github.com/user-attachments/assets/8e14cb1c-5865-4fea-92f6-57a7058724c3" />
+
+* The physical edge device:<br>
+<img width="2560" height="1928" alt="image" src="https://github.com/user-attachments/assets/7b7d68c3-7b88-4593-b4af-0d96276f447b" />
+
+
+---
 ## License
 Distributed under the MIT License.  – see the [LICENSE](LICENSE) file for details.
