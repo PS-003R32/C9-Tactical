@@ -60,6 +60,76 @@ Keypad Cols: GP5, GP4, GP3, GP2.
 ---
 ## Usage Manual
 
+1. The Physical-to-Logical Mapping.
+|  Physical Key  |   Logical Function   |       Category      |
+|----------------|----------------------|---------------------|
+|        1       |         TOP          |      Lane Filter    |
+|        2       |         JGL          |      Lane Filter    | 
+|        3       |         MID          |      Lane Filter    | 
+|        A       |         STATS        |     View Switcher   |
+|        4       |         BOT          |     Lane Filter     |
+|        5       |         SUP          |     Lane Filter     |
+|        6       |         TEAM         |     Alert/Highlight |
+|        B       |         BANS         |     View Switcher   |
+|        7       |         OPP1         |     Alert/Highlight |
+|        8       |         OPP2         |     (Reserved)      |
+|        9       |         OPP3         |     (Reserved)      |
+|        C       |         MATCH        |     View Switcher   |
+|        *       |         *            |     Game Input      |
+|        0       |         0            |     Game Input      |
+|        #       |         #            |     Game Input      |
+|        D       |         HOME         |     System Reset    |
+
+2. Detailed Function Explanation
+A. Lane Filters (The "Focus" Buttons)<br>
+These buttons allow an analyst to instantly cut through the noise on the dashboard.<br>
+**Keys**: `TOP`, `JGL`, `MID`, `BOT`, `SUP`.<br>
+**Code Action**: Sends `{"type": "filter", "target": "RoleName"}`.<br>
+Result on Dashboard:<br>
+The Javascript frontend receives this command.<br>
+It applies a CSS class (.dimmed) to all player rows that do not match the selected target.<br>
+Example: Pressing '2' (JGL) makes the Top, Mid, Bot, and Support rows fade to 20% opacity, leaving the Jungle matchup highlighted in bright green.<br>
+
+B. View Switchers (The "Screen" Buttons)<br>
+These buttons change the entire layout of the web dashboard, acting like tabs in a browser but controlled physically.<br>
+
+`STATS (Key 'A')`:<br>
+**Payload**: {"type": "view", "target": "statistics"}.<br>
+**Result**: Hides the "Roster Intel" panel and reveals the "Advanced Analytics" panel (graphs/charts).<br>
+
+`BANS (Key 'B')`:<br>
+**Payload**: `{"type": "view", "target": "ban_picks"}`.<br>
+**Result**: Switches the screen to the Pick/Ban recommendation engine (Category 3).<br>
+
+`MATCH (Key 'C')`:<br>
+**Payload**: `{"type": "view", "target": "overview"}`.<br>
+**Result**: Forces the screen back to the main Live Feed.<br>
+
+`HOME (Key 'D')`:<br>
+**Payload**: `{"type": "view", "target": "overview"}`, plus resets all filters.<br>
+**Result**: "Panic Button." Resets the dashboard to its default state (showing all lanes, main view).<br>
+
+C. Tactical Alerts (The "Action" Buttons)<br>
+These are context-specific triggers used to flag specific events during a match.<br>
+
+`TEAM` (Key '6'):<br>
+**Payload**: {"type": "alert", "target": "C9"}.<br>
+**Result**: Highlights your own team's roster section (e.g., flashes blue), useful for signaling a `"Great Play"` or `"Team Synergy"` moment.<br>
+
+`OPP1` (Key '7'):<br>
+**Payload**: {"type": "alert", "target": "Enemy_Carry"}.<br>
+**Result**: Automatically identifies the highest-risk enemy player (from the GRID data) and flashes their name RED on the big screen.<br>
+
+D. Game Inputs (The "Defusal" Buttons)<br>
+When the device is in Fan Activation Mode (Spike Defusal Game), these keys revert to standard numeric inputs.<br>
+**Keys**: `0-9`, `*`, `#`<br>
+**Function**: Used to type the 4-digit defusal code.<br>
+**Logic**: The code checks if `game_state == "ARMED"`. If yes, it treats these keys as numbers. If `game_state == "MENU"`, it treats them as Tactical Commands.<br>
+
+_The keypad isn't just a number pad. It is a context-aware controller. During a tactical review, Button '2' focuses the dashboard on the Jungle matchup. But during a fan activation event, that same Button '2' becomes part of the defusal code for the Spike Simulator. This dual-purpose design allows one hardware device to serve both analysts and fans._
+
+---
+### Example
 |  Key  |      Function     |                       Description                       |
 |-------|-------------------|---------------------------------------------------------|
 |  JGL  |   Filter: Jungle  |    Dims all rows except the Jungle matchup.             |
