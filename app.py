@@ -1,24 +1,29 @@
 import threading
 import json
 import time
+import random
 from flask import Flask, render_template, jsonify, request
 import websocket
 
-
-GRID_API_KEY = "yourAPIkey"
-SERIES_ID = "28" # Try 28 (CS2) or 3 (LoL) if 6 is down
+GRID_API_KEY = "your_apikey"
+SERIES_ID = "28" # try code for CS2 or VAL 6 if 28 doesn't work.
 GRID_WS_URL = f"wss://api.grid.gg/live-data-feed/series/{SERIES_ID}?key={GRID_API_KEY}"
 
-SIMULATION_MODE = True
+SIMULATION_MODE = True 
 
 app = Flask(__name__)
+
 game_data = {
     "map": "OFFLINE",
     "score_c9": 0,
     "score_opp": 0,
     "events": [],
-    "roster": {},
-    "last_update": "N/A"
+    "roster": {}, 
+    "last_update": "N/A",
+    "stats_history": {
+        "labels": [],
+        "c9_kd": []
+    }
 }
 
 view_state = {
@@ -33,49 +38,50 @@ def run_simulation():
         with open('match_replay.json', 'r') as f:
             script = json.load(f)
     except:
-        print("Error: match_replay.json not found. Create it first!")
+        print("Error: match_replay.json not found.")
         return
 
     while True:
         game_data['map'] = "SIMULATION FEED"
         game_data['events'] = []
         game_data['roster'] = {}
-
+        game_data['stats_history']['labels'] = []
+        game_data['stats_history']['c9_kd'] = []
+        
+        c9_kills_total = 0
+        c9_deaths_total = 0
+        
         for step in script:
             time.sleep(step['delay'])
-            game_data['last_update'] = time.strftime("%H:%M:%S")
+            current_time = time.strftime("%H:%M:%S")
+            game_data['last_update'] = current_time
 
             if step['type'] == 'event':
-                # Handle Kills
                 if step['action'] == 'killed':
                     msg = f"KILL: {step['actor']} -> {step['target']}"
-                    game_data['events'].insert(0, {"time": game_data['last_update'], "msg": msg})
-
-                    # Update Roster
+                    game_data['events'].insert(0, {"time": current_time, "msg": msg})
+                    
                     actor = step['actor']
                     if actor not in game_data['roster']:
                         game_data['roster'][actor] = {"kills": 0, "role": step.get('role', 'Unknown'), "risk": "LOW"}
-
+                    
                     game_data['roster'][actor]['kills'] += 1
-                    if game_data['roster'][actor]['kills'] > 1: game_data['roster'][actor]['risk'] = "HIGH"
+                    
+                    c9_kills_total += 1
+                    
+                    kd_ratio = c9_kills_total / (c9_deaths_total if c9_deaths_total > 0 else 1)
+                    game_data['stats_history']['labels'].append(current_time)
+                    game_data['stats_history']['c9_kd'].append(round(kd_ratio, 2))
+                    
+                    if len(game_data['stats_history']['labels']) > 15:
+                        game_data['stats_history']['labels'].pop(0)
+                        game_data['stats_history']['c9_kd'].pop(0)
 
-                # Handle Plants
                 elif 'msg' in step:
-                    game_data['events'].insert(0, {"time": game_data['last_update'], "msg": step['msg']})
-
+                    game_data['events'].insert(0, {"time": current_time, "msg": step['msg']})
+            
             elif step['type'] == 'state':
                 game_data['map'] = step['map']
-                game_data['score_c9'] = step['score_c9']
-
-def on_message(ws, message):
-    data = json.loads(message)
-def start_grid_listener():
-    if not SIMULATION_MODE:
-        websocket.enableTrace(True)
-        ws = websocket.WebSocketApp(GRID_WS_URL, on_message=on_message)
-        ws.run_forever()
-    else:
-        run_simulation()
 
 @app.route('/')
 def index():
@@ -90,7 +96,7 @@ def receive_command():
     elif cmd['type'] == 'view':
         view_state['active_view'] = cmd['target']
         view_state['active_filter'] = 'ALL'
-
+    
     view_state['last_command'] = f"{cmd.get('key_name', 'CMD')} -> {cmd['type']}"
     return jsonify({"status": "ACK"})
 
@@ -99,7 +105,7 @@ def sync_frontend():
     return jsonify({"game": game_data, "view": view_state})
 
 if __name__ == '__main__':
-    t = threading.Thread(target=start_grid_listener)
+    t = threading.Thread(target=run_simulation)
     t.daemon = True
     t.start()
     app.run(host='0.0.0.0', port=5000)
