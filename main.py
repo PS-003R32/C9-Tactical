@@ -4,13 +4,11 @@ import time
 from machine import Pin, I2C, SoftI2C
 import ssd1306
 
-# --- CONFIGURATION ---
 SSID = "yourSSID"
 PASS = "passwd"
 # change IP of Pi Zero W.
 SERVER_URL = "http://10.46.148.188:5000/api/telemetry"
 
-# --- HARDWARE SETUP ---
 i2c = SoftI2C(sda=Pin(0), scl=Pin(1), freq=100000)
 oled = ssd1306.SSD1306_I2C(128, 64, i2c)
 
@@ -19,7 +17,7 @@ oled = ssd1306.SSD1306_I2C(128, 64, i2c)
 rows = [Pin(x, Pin.OUT) for x in [6, 7, 8, 9]]
 cols = [Pin(x, Pin.IN, Pin.PULL_DOWN) for x in [5, 4, 3, 2]]
 
-# Logical Map
+# Logical Map for teh keypad.
 keys_map = [
     ['TOP',  'JGL',  'MID',  'STATS'],   # Row 1
     ['BOT',  'SUP',  'TEAM', 'BANS'],    # Row 2
