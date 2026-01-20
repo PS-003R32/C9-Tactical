@@ -4,41 +4,39 @@ import time
 from machine import Pin, I2C, SoftI2C
 import ssd1306
 
+# --- CONFIGURATION ---
 SSID = "yourSSID"
-PASS = "pass"
-# change this to IP of your pi zero w or if you are using your pc you can change it to the ip of your pc.
+PASS = "passwd"
+# change IP of Pi Zero W.
 SERVER_URL = "http://10.46.148.188:5000/api/telemetry"
 
-# oled setup
+# --- HARDWARE SETUP ---
 i2c = SoftI2C(sda=Pin(0), scl=Pin(1), freq=100000)
 oled = ssd1306.SSD1306_I2C(128, 64, i2c)
-# keypad setupk
-# my keypad has R4-R3-R2-R1-C1-C2-C3-C4 pins in sequence you should check your's
+
+# Keypad Setup, 
+# my 4x4 matrix keypad has R4-R3-R2-R1-C1-C2-C3-C4 pinout, check yours.
 rows = [Pin(x, Pin.OUT) for x in [6, 7, 8, 9]]
 cols = [Pin(x, Pin.IN, Pin.PULL_DOWN) for x in [5, 4, 3, 2]]
 
+# Logical Map
 keys_map = [
-    ['TOP',  'JGL',  'MID',  'STATS'],
-    ['BOT',  'SUP',  'TEAM', 'BANS'],
-    ['OPP1', 'OPP2', 'OPP3', 'MATCH'],
-    ['*',    '0',    '#',    'HOME']
+    ['TOP',  'JGL',  'MID',  'STATS'],   # Row 1
+    ['BOT',  'SUP',  'TEAM', 'BANS'],    # Row 2
+    ['OPP1', 'OPP2', 'OPP3', 'MATCH'],   # Row 3
+    ['*',    '0',    '#',    'HOME']     # Row 4
 ]
 
 KEY_COMMANDS = {
-    # Filters
     'TOP':  {"type": "filter", "target": "Top"},
     'JGL':  {"type": "filter", "target": "Jungle"},
     'MID':  {"type": "filter", "target": "Mid"},
     'BOT':  {"type": "filter", "target": "Bot"},
     'SUP':  {"type": "filter", "target": "Support"},
-    
-    # Views
     'STATS': {"type": "view", "target": "statistics"},
     'BANS':  {"type": "view", "target": "ban_picks"},
-    'MATCH': {"type": "view", "target": "overview"}, 
-    'HOME':  {"type": "view", "target": "overview"}, # Reset
-    
-    # Special
+    'MATCH': {"type": "view", "target": "overview"},
+    'HOME':  {"type": "view", "target": "overview"},
     'TEAM':  {"type": "alert", "target": "C9"},
     'OPP1':  {"type": "alert", "target": "Enemy_Carry"}
 }
@@ -50,14 +48,12 @@ def connect_wifi():
         oled.fill(0); oled.text("CONNECTING...", 0,0); oled.show()
         w.connect(SSID, PASS)
         while not w.isconnected(): time.sleep(1)
-    print("Connected:", w.ifconfig()[0])
+    print("IP:", w.ifconfig()[0])
 
 def send_cmd(key_name):
-    """Sends the specific command to the C2 Server"""
     if key_name in KEY_COMMANDS:
         payload = KEY_COMMANDS[key_name]
         payload['key_name'] = key_name
-        
         try:
             urequests.post(SERVER_URL, json=payload).close()
             oled.fill(0)
@@ -74,12 +70,12 @@ def scan_keys():
         for c in range(4):
             if cols[c].value():
                 key = keys_map[r][c]
-                while cols[c].value(): pass
+                while cols[c].value(): pass # Debounce
                 rows[r].value(0)
                 return key
         rows[r].value(0)
     return None
-#----------------------------------------------
+
 connect_wifi()
 oled.fill(0)
 oled.text("C9 TACTICAL", 10, 20)
@@ -87,7 +83,6 @@ oled.text("READY", 40, 40)
 oled.show()
 
 while True:
-    key = scan_keys()
-    if key:
-        send_cmd(key)
+    k = scan_keys()
+    if k: send_cmd(k)
     time.sleep(0.05)
