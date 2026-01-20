@@ -13,9 +13,11 @@
         
         .hidden { display: none !important; }
         
-        .player-row { padding: 10px; border-bottom: 1px solid #222; display: flex; justify-content: space-between; transition: opacity 0.3s; }
-        .player-row.dimmed { opacity: 0.1; filter: blur(2px); }
-        .player-row.highlight { border: 2px solid #00ff41; background: #0f1a0f; }
+        .player-row { padding: 10px; border-bottom: 1px solid #222; display: flex; justify-content: space-between; transition: all 0.3s; }
+        
+        .player-row.dimmed { opacity: 0.4; filter: none; }
+        
+        .player-row.highlight { border: 2px solid #00ff41; background: #0f1a0f; opacity: 1.0; }
         
         .CRITICAL { color: red; font-weight: bold; animation: pulse 1s infinite; }
         @keyframes pulse { 50% { opacity: 0.5; } }
@@ -26,7 +28,13 @@
 <body>
     <div class="header">
         <h1>C9 COMMAND // <span id="map-name">LOADING</span></h1>
-        <div class="cmd-log">LAST INPUT: <span id="last-cmd">NONE</span></div>
+        <div style="text-align: right;">
+            <div class="cmd-log">LAST INPUT: <span id="last-cmd">NONE</span></div>
+            <div style="margin-top: 5px;">
+                SOURCE: <span id="data-source" style="font-weight:bold; color:gray;">CONNECTING...</span>
+                <span id="ping-indicator" style="color: #00ff41;">●</span>
+            </div>
+        </div>
     </div>
 
     <div class="grid-layout">
@@ -39,7 +47,6 @@
 
             <div id="view-stats" class="panel hidden">
                 <h2>ADVANCED ANALYTICS: C9 MOMENTUM</h2>
-                <p>Real-time Team K/D Ratio</p>
                 <div style="height: 250px; width: 100%;">
                     <canvas id="kdChart"></canvas>
                 </div>
@@ -59,7 +66,6 @@
 
     <script>
         let kdChart = null;
-
         function initChart() {
             const ctx = document.getElementById('kdChart').getContext('2d');
             kdChart = new Chart(ctx, {
@@ -67,7 +73,7 @@
                 data: {
                     labels: [],
                     datasets: [{
-                        label: 'Cloud9 Team K/D',
+                        label: 'Team K/D Ratio',
                         data: [],
                         borderColor: '#00ff41',
                         backgroundColor: 'rgba(0, 255, 65, 0.1)',
@@ -80,19 +86,10 @@
                     responsive: true,
                     maintainAspectRatio: false,
                     scales: {
-                        y: { 
-                            beginAtZero: true, 
-                            grid: { color: '#333' },
-                            ticks: { color: '#00ff41' }
-                        },
-                        x: { 
-                            grid: { color: '#333' },
-                            ticks: { color: '#00ff41' }
-                        }
+                        y: { grid: { color: '#333' }, ticks: { color: '#00ff41' } },
+                        x: { grid: { color: '#333' }, ticks: { color: '#00ff41' } }
                     },
-                    plugins: {
-                        legend: { labels: { color: '#fff' } }
-                    }
+                    plugins: { legend: { labels: { color: '#fff' } } }
                 }
             });
         }
@@ -106,6 +103,14 @@
                 
                 document.getElementById('map-name').innerText = game.map;
                 document.getElementById('last-cmd').innerText = view.last_command;
+                
+                const sourceLabel = document.getElementById('data-source');
+                if (game.map === "SIMULATION FEED") {
+                    sourceLabel.innerText = "SIMULATION"; sourceLabel.style.color = "orange";
+                } else {
+                    sourceLabel.innerText = "LIVE GRID API"; sourceLabel.style.color = "#00ff41";
+                }
+
                 document.getElementById('view-overview').classList.toggle('hidden', view.active_view !== 'overview');
                 document.getElementById('view-stats').classList.toggle('hidden', view.active_view !== 'statistics');
                 document.getElementById('view-bans').classList.toggle('hidden', view.active_view !== 'ban_picks');
@@ -117,29 +122,48 @@
                 }
 
                 const rosterDiv = document.getElementById('roster-list');
-                rosterDiv.innerHTML = ""; 
-                const roles = ['Top', 'Jungle', 'Mid', 'Bot', 'Support'];
-                let i = 0;
+                if (Object.keys(game.roster).length > 0) {
+                    rosterDiv.innerHTML = ""; 
+                    const roleOrder = ["TOP", "JUNGLE", "MID", "BOT", "SUPPORT", "UNKNOWN"];
+                    const sortedRoster = Object.entries(game.roster).sort((a, b) => {
+                        const rA = (a[1].role || "Unknown").toUpperCase();
+                        const rB = (b[1].role || "Unknown").toUpperCase();
+                        return roleOrder.indexOf(rA) - roleOrder.indexOf(rB);
+                    });
 
-                for (const [name, stats] of Object.entries(game.roster)) {
-                    const role = roles[i % 5]; i++;
-                    const div = document.createElement('div');
-                    div.className = 'player-row';
-                    
-                    if (view.active_filter !== 'ALL' && view.active_filter !== role) {
-                        div.classList.add('dimmed');
-                    } else if (view.active_filter === role) {
-                        div.classList.add('highlight');
+                    for (const [name, stats] of sortedRoster) {
+                        const role = stats.role || "Unknown";
+                        const div = document.createElement('div');
+                        div.className = 'player-row';
+                        
+                        const activeFilter = view.active_filter.toUpperCase();
+                        const currentRole = role.toUpperCase();
+                        const activeAlert = view.active_alert;
+
+                        // FILTER LOGIC
+                        if (activeFilter !== 'ALL' && activeFilter !== currentRole) {
+                            div.classList.add('dimmed');
+                        } else if (activeFilter === currentRole) {
+                            div.classList.add('highlight');
+                        }
+
+                        if (activeAlert === 'C9' && stats.risk === 'LOW') {
+                             div.style.border = "2px solid cyan";
+                             div.style.boxShadow = "0 0 10px cyan";
+                        }
+                        if (activeAlert === 'Enemy_Carry' && stats.risk === 'CRITICAL') {
+                             div.style.border = "2px solid red";
+                             div.classList.add('CRITICAL');
+                        }
+
+                        div.innerHTML = `
+                            <span style="width: 100px;">[${role}]</span>
+                            <span style="font-weight:bold; color:white;">${name}</span>
+                            <span>Kills: ${stats.kills}</span>
+                        `;
+                        rosterDiv.appendChild(div);
                     }
-
-                    div.innerHTML = `
-                        <span>[${role.toUpperCase()}] ${name}</span>
-                        <span>Kills: ${stats.kills}</span>
-                        <span class="${stats.risk}">THREAT: ${stats.risk}</span>
-                    `;
-                    rosterDiv.appendChild(div);
                 }
-
                 const logsDiv = document.getElementById('event-logs');
                 logsDiv.innerHTML = game.events.map(e => `<div>[${e.time}] ${e.msg}</div>`).join('');
             });
