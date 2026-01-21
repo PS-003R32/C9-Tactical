@@ -3,37 +3,33 @@ import json
 import time
 import random
 from flask import Flask, render_template, jsonify, request
-import websocket
-
-GRID_API_KEY = "your_apikey"
-SERIES_ID = "28" # try code for CS2 or VAL 6 if 28 doesn't work.
-GRID_WS_URL = f"wss://api.grid.gg/live-data-feed/series/{SERIES_ID}?key={GRID_API_KEY}"
 
 SIMULATION_MODE = True 
+# Live Data Config (Only works if a real match is live on this Series ID)
+GRID_API_KEY = "GRID-apikey"
+SERIES_ID = "28" 
 
 app = Flask(__name__)
-
 game_data = {
     "map": "OFFLINE",
-    "score_c9": 0,
-    "score_opp": 0,
-    "events": [],
-    "roster": {}, 
-    "last_update": "N/A",
-    "stats_history": {
-        "labels": [],
-        "c9_kd": []
-    }
+    "score_c9": 0, "score_opp": 0,
+    "events": [], "roster": {}, "last_update": "N/A",
+    "stats_history": {"labels": [], "c9_kd": []},
+    "leaderboard": {"best_time": 99.9, "last_time": 0.0}
 }
 
 view_state = {
     "active_view": "overview",
     "active_filter": "ALL",
-    "last_command": "None"
+    "active_alert": None,
+    "last_command": "None",
+    "connection_status": "CONNECTING"
 }
 
 def run_simulation():
     print(">>> STARTING SIMULATION MODE")
+    view_state['connection_status'] = "SIMULATION (LIVE)"
+    
     try:
         with open('match_replay.json', 'r') as f:
             script = json.load(f)
@@ -44,13 +40,17 @@ def run_simulation():
     while True:
         game_data['map'] = "SIMULATION FEED"
         game_data['events'] = []
-        game_data['roster'] = {}
-        game_data['stats_history']['labels'] = []
-        game_data['stats_history']['c9_kd'] = []
+        game_data['roster'] = {
+            "Fudge": {"kills": 0, "role": "Top", "risk": "LOW"},
+            "Blaber": {"kills": 0, "role": "Jungle", "risk": "LOW"},
+            "Jojopyun": {"kills": 0, "role": "Mid", "risk": "LOW"},
+            "Berserker": {"kills": 0, "role": "Bot", "risk": "LOW"},
+            "Vulcan": {"kills": 0, "role": "Support", "risk": "LOW"}
+        }
         
-        c9_kills_total = 0
-        c9_deaths_total = 0
-        
+        c9_kills = 0
+        c9_deaths = 0
+
         for step in script:
             time.sleep(step['delay'])
             current_time = time.strftime("%H:%M:%S")
@@ -58,46 +58,55 @@ def run_simulation():
 
             if step['type'] == 'event':
                 if step['action'] == 'killed':
+                    actor = step['actor']
+                    if actor not in game_data['roster']:
+                         game_data['roster'][actor] = {"kills": 0, "role": step.get('role', 'Unknown'), "risk": "LOW"}
+                    
+                    game_data['roster'][actor]['kills'] += 1
                     msg = f"KILL: {step['actor']} -> {step['target']}"
                     game_data['events'].insert(0, {"time": current_time, "msg": msg})
                     
-                    actor = step['actor']
-                    if actor not in game_data['roster']:
-                        game_data['roster'][actor] = {"kills": 0, "role": step.get('role', 'Unknown'), "risk": "LOW"}
-                    
-                    game_data['roster'][actor]['kills'] += 1
-                    
-                    c9_kills_total += 1
-                    
-                    kd_ratio = c9_kills_total / (c9_deaths_total if c9_deaths_total > 0 else 1)
+                    c9_kills += 1
+                    kd = c9_kills / (c9_deaths if c9_deaths > 0 else 1)
                     game_data['stats_history']['labels'].append(current_time)
-                    game_data['stats_history']['c9_kd'].append(round(kd_ratio, 2))
-                    
+                    game_data['stats_history']['c9_kd'].append(round(kd, 2))
                     if len(game_data['stats_history']['labels']) > 15:
                         game_data['stats_history']['labels'].pop(0)
                         game_data['stats_history']['c9_kd'].pop(0)
 
                 elif 'msg' in step:
                     game_data['events'].insert(0, {"time": current_time, "msg": step['msg']})
-            
             elif step['type'] == 'state':
                 game_data['map'] = step['map']
 
 @app.route('/')
-def index():
-    return render_template('dashboard.html')
+def index(): return render_template('dashboard.html')
 
 @app.route('/api/telemetry', methods=['POST'])
 def receive_command():
     cmd = request.json
-    if cmd['type'] == 'filter':
+    view_state['last_command'] = f"{cmd.get('key_name', 'CMD')} -> {cmd['type']}"
+    
+    if cmd['type'] == 'alert':
+        view_state['active_alert'] = cmd['target']
+        if cmd['target'] == 'C9': view_state['active_filter'] = 'ALL'
+        
+        if cmd['target'] == 'SPIKE_DEFUSED':
+            time_taken = float(cmd.get('time_taken', 0))
+            game_data['leaderboard']['last_time'] = time_taken
+            if time_taken < game_data['leaderboard']['best_time']:
+                game_data['leaderboard']['best_time'] = time_taken
+
+    elif cmd['type'] == 'filter':
         view_state['active_filter'] = cmd['target']
         view_state['active_view'] = 'overview'
+        view_state['active_alert'] = None
+        
     elif cmd['type'] == 'view':
         view_state['active_view'] = cmd['target']
         view_state['active_filter'] = 'ALL'
-    
-    view_state['last_command'] = f"{cmd.get('key_name', 'CMD')} -> {cmd['type']}"
+        view_state['active_alert'] = None
+
     return jsonify({"status": "ACK"})
 
 @app.route('/api/sync')
