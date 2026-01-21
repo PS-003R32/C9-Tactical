@@ -63,7 +63,7 @@ Keypad Cols: GP5, GP4, GP3, GP2.
 ---
 ## Usage Manual
 
-1. The Physical-to-Logical Mapping.
+### 1. The Physical-to-Logical Mapping.
 
 |  Physical Key  |   Logical Function   |       Category      |
 |----------------|----------------------|---------------------|
@@ -84,31 +84,44 @@ Keypad Cols: GP5, GP4, GP3, GP2.
 |        #       |         #            |     Game Input      |
 |        D       |         HOME         |     System Reset    |
 
-2. Detailed Function Explanation<br>
+### 2. Detailed Function Explanation<br>
 
-A. Game Mode (The Fan Experience) Designed for the Event Booth.
-**Start**: Press '`A`' to `ARM` the device.
-**The Challenge**: A `45-second` countdown begins on the OLED.
-**Action**: Enter the secret code (Default: `7359`) and press `#` before time runs out.
-**Win**: The Arena Dashboard turns CYAN (ROUND SECURED). 
-**Lose**: The Arena Dashboard triggers a "`DETONATION`" event.
+#### A. Game Mode (The Fan Experience) Designed for the Event Booth.<br>
+**Start**: Press '`A`' to `ARM` the device.<br>
+**The Challenge**: A `45-second` countdown begins on the OLED.<br>
+**Action**: You have to solve simple math to get the code. Enter the secret code and press `#` before time runs out.<br>
+**Win**: The Arena Dashboard turns CYAN (ROUND SECURED). And there's a leaderboard for the fastest defusal.<br>
+**Lose**: The Arena Dashboard triggers a "`DETONATION`" event.<br>
 
-B. Analyst Mode (Default) When the game is not running, the keypad acts as a tactical controller for the dashboard.
-**Lane Filters (`1`-`5`)**: Instantly cuts through the noise.
-**Action**: Press `2` (`JGL`).
-**Result**: Dims all rows on the dashboard except the Jungle matchup, allowing the coach to focus. 
-**View Switchers (`B`, `C`, `D`)**: Changes the screen layout.
-- `STATS` (Key `C`): Switches to the live "Momentum Graph" (Chart.js). 
-- `BANS` (Key `B`): Switches to the Pick/Ban Recommendation engine. 
-- `HOME` (Key `D`): Resets the dashboard to the main Roster View. 
-**Tactical Alerts (`6`, `7`)**:
-- TEAM (Key '6'): Highlights Cloud9 players in Cyan to signal a great play. 
+#### B. Analyst Mode (Default) When the game is not running, the keypad acts as a tactical controller for the dashboard.<br>
+**Lane Filters (`1`-`5`)**: Instantly cuts through the noise.<br>
+**Action**: Press `2` (`JGL`).<br>
+**Result**: Dims all rows on the dashboard except the Jungle matchup, allowing the coach to focus. <br>
+**View Switchers (`B`, `C`, `D`)**: Changes the screen layout.<br>
+- `STATS` (Key `C`): Switches to the live "Momentum Graph" (Chart.js). <br>
+- `BANS` (Key `B`): Switches to the Pick/Ban Recommendation engine. <br>
+- `HOME` (Key `D`): Resets the dashboard to the main Roster View.<br>
+**Tactical Alerts (`6`, `7`)**:<br>
+- TEAM (Key '6'): Highlights Cloud9 players in Cyan to signal a great play. <br>
 - OPP1 (Key '7'): Flags the enemy carry in Red as a "Critical Threat".<br>
 
 _The keypad isn't just a number pad. It is a context-aware controller. During a tactical review, Button '2' focuses the dashboard on the Jungle matchup. But during a fan activation event, that same Button '2' becomes part of the defusal code for the Spike Simulator. This dual-purpose design allows one hardware device to serve both analysts and fans._
 
 ---
-### Example
+### Game mode simulation
+* Mode 2: Fan Activation ("Spike Defusal Game")<br>
+- Press '`A`' on the keypad to `ARM` the device.
+- The OLED will show a countdown timer.
+- Watch the Dashboard: The Server status will turn RED (ARMED).
+- Enter the secret code by solving simple math displayed on the oled before time runs out.
+- Win: Dashboard status turns CYAN (DEFUSED).
+
+<img width="1857" height="1152" alt="image" src="https://github.com/user-attachments/assets/feef0c33-40bb-4b30-82c5-42774132fc74" /><br>
+<img width="1853" height="1152" alt="image" src="https://github.com/user-attachments/assets/4aff97a7-a2cf-4e20-b1b3-cd70446d4918" /><br>
+
+
+---
+### Analyst mode simulation
 |  Key  |      Function     |                       Description                       |
 |-------|-------------------|---------------------------------------------------------|
 |  JGL  |   Filter: Jungle  |    Dims all rows except the Jungle matchup.             |
@@ -117,12 +130,6 @@ _The keypad isn't just a number pad. It is a context-aware controller. During a 
 |  HOME |   View: Overview  |    Resets dashboard to the full Roster view.            | 
 |  OPP1 |   Alert: Threat   |   "Flags the enemy Top Laner as a ""Critical Threat.""" |
 
-* Mode 2: Fan Activation ("Spike Defusal")<br>
-- Press 'A' on the keypad to ARM the device.
-- The OLED will show a countdown timer.
-- Watch the Dashboard: The Server status will turn RED (ARMED).
-- Enter the secret code (Default: 7359) before time runs out.
-- Win: Dashboard status turns CYAN (DEFUSED).
 
 ---
 # Snapshots
