@@ -1,6 +1,7 @@
 # C9 Tactical Command Ecosystem: From Server to Soldier
 A high-pressure **"Spike Defusal" Event Game** where fans race against the clock to disarm a C9 spike, powered by a live-syncing hardware ecosystem that mimics the pressure of the VCT stage.
-This project combines a fast-paced **Event Mini-Game** with a professional **Red Team Scouting Dashboard**, proving that the fun is built on pro-grade tech.
+This project combines a fast-paced **Event Mini-Game** with a professional **Red Team Scouting Dashboard**, proving that the fun is built on pro-grade tech.<br>
+Watch this project come [[live](https://youtu.be/Wke1-xOfvuw)].
 
 ---
 ## How It Works
